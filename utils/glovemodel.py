@@ -39,7 +39,7 @@ class GloveVector():
         #     zipped = zipfile.ZipFile(glove_zip,mode = 'r')
         #     zipped.extractall()
         #     zipped.close()
-        data_dir_path = '/Users/ananddharne/ResumeFilter/data/'   
+        data_dir_path = '/home/anand/ResumeAnalysis/data/'   
         # data_dir_path = os.path.join(os.getcwd() + '../','data')
         glove_file_path =  data_dir_path + 'glove.6B.' + str(embedding_size) + 'd.txt'
         embedding_dict = {}

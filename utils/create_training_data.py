@@ -20,11 +20,11 @@ line_labels_reverse = {v:k for k,v in line_labels.items()}
 line_types = {0: 'header', 1: 'meta', 2: 'content'}
 line_types_reverse = {v:k for k,v in line_types.items()}
 
-class LabelResume(Frame):
+class AnnotatorGui(Frame):
     def __init__(self, master , lines_with_dummy_labels):
         Frame.__init__(self, master = master)
         self.CustomFont = tkFont.Font(family = 'Helvetica', size = 5)
-        self.master.title('Label Resume Lines')
+        # self.master.title('Label Resume Lines')
         self.master.rowconfigure(0,weight = 1)
         self.master.columnconfigure(0, weight = 1)
         self.grid(sticky = W + E + N + S)
@@ -39,68 +39,86 @@ class LabelResume(Frame):
         self.rowconfigure(1, weight = 1)
         self.columnconfigure(1, weight = 1)
         
-    def build_line(self, lines_with_dummy_labels, line_number, line):
-        line_text = line[0]
-     
-        lineIndex = Label(self, width = 10, height = 1, text = str(line_number))
-        lineIndex.grid(row = line_number, column = 0,sticky = W+E+N+S)
-         
-        lineContent = Text(self, width = 100, height = 1)
-        lineContent.insert(INSERT, line_text)
-        lineContent.grid(row = line_number, column = 1, sticky = W+E+N+S)
-     
-        def change_type_dropdown(*args):
-            curr_type_value = tkvar_types.get()
-            lines_with_dummy_labels[line_number][1] = line_types_reverse[curr_type_value]
+    def build_line(self, table_content, line_index, line):
+        line_content = line[0]
 
-            
-        def change_label_dropdown(*args):
-            curr_label_value = tkvar_labels.get()
-            lines_with_dummy_labels[line_number][2] = line_labels_reverse[curr_label_value]
-            
-        tkvar_types = StringVar(self.master)
-        type_choices = {'header','meta','content'}
-        tkvar_types.set('None') # set the default option
-        popupMenu = OptionMenu(self, tkvar_types, *type_choices)
-        popupMenu.grid(row=line_number, column=2, sticky=W + E + N + S) 
-        tkvar_types.trace('w', change_type_dropdown)
-        
-        tkvar_labels = StringVar(self.master)
-        label_choices = {'experience','knowledge','education','project','others'}
-        tkvar_labels.set('None') # set the default option
-        popupMenu = OptionMenu(self, tkvar_labels, *label_choices)
-        popupMenu.grid(row=line_number, column=3, sticky=W + E + N + S) 
-        tkvar_labels.trace('w', change_label_dropdown)
+        line_index_label = Label(self.master, width=10, height=1, text=str(line_index))
+        self.master.create_window(50, line_index*35, height=40, width=80, window=line_index_label)
+
+        line_content_text = Text(self.master, width=100, height=1)
+        line_content_text.insert(INSERT, line_content)
+        self.master.create_window(1100, line_index*35, height=40, width=2000, window=line_content_text)
+
+        def line_type_button_click(_line_index):
+            line_type = table_content[_line_index][1]
+            line_type = (line_type + 1) % len(line_types)
+            table_content[_line_index][1] = line_type
+            line_type_button["text"] = "Type: " + line_types[line_type]
+
+        def line_label_button_click(_line_index):
+            line_label = table_content[_line_index][2]
+            line_label = (line_label + 1) % len(line_labels)
+            table_content[_line_index][2] = line_label
+            line_label_button["text"] = "Type: " + line_labels[line_label]
+
+        line_type_button = Button(self.master, text="Type: Unknown", width=20,
+                                  command=lambda: line_type_button_click(line_index))
+        self.master.create_window(1500, line_index*35, height=40, width=300, window=line_type_button)
+        line_label_button = Button(self.master, text='Label: Unknown', width=20,
+                                   command=lambda: line_label_button_click(line_index))
+        self.master.create_window(1800, line_index*35, height=40, width=300, window=line_label_button)
 
 
+        if line[1] != -1:
+            line_type_button["text"] = "Type: " + line_types[line[1]]
+        if line[2] != -1:
+            line_label_button["text"] = "Type: " + line_labels[line[2]]
 
-def resume_gui(training_data_dir_path, index, file_path, file_content):
-    lines_with_dummy_labels = [[line, -1, -1] for line in file_content]
-    
-    master = Tk()
-    gui = LabelResume(master, lines_with_dummy_labels)
-    
+
+def guess_line_type(line):
+    return -1
+
+
+def guess_line_label(line):
+    return -1
+
+def gui_annotate(training_data_dir_path, index, file_path, file_content):
+
+    root = Tk()
+    root.columnconfigure(0, weight=1)
+    root.rowconfigure(0, weight=1)
+    root.geometry("{0}x{1}+0+0".format(root.winfo_screenwidth(), root.winfo_screenheight()))
+
+    canvas = Canvas(root, width=170, height=300)
+    vsb = Scrollbar(root, orient="vertical", command=canvas.yview)
+    canvas.grid(row=0, column=0, sticky=W+E+N+S)
+    vsb.grid(row=0, column=1, sticky=N+S)
+
+    table_content = [[line, guess_line_type(line), guess_line_label(line)] for line in file_content]
+    gui = AnnotatorGui(canvas, table_content)
+
     def callback():
-        master.destroy()
+        root.destroy()
         output_file_path = os.path.join(training_data_dir_path, str(index)+'.csv')
         if os.path.exists(output_file_path):
             return
-        data = pd.DataFrame.from_records(lines_with_dummy_labels,columns = ['text','type','label'])
+        data = pd.DataFrame.from_records(table_content,columns = ['text','type','label'])
         rows_to_drop = data.loc[((data['type']== -1) | (data['label'] == -1))].index
         data.drop(data.index[rows_to_drop],inplace = True,axis = 0)
         data.to_csv(output_file_path,index = False)
 
+    # Define scrollregion AFTER widgets are placed on canvas
+    canvas.config(yscrollcommand= vsb.set, scrollregion=canvas.bbox("all"))
 
-    master.protocol("WM_DELETE_WINDOW", callback)
-    gui.mainloop()
-
+    root.protocol("WM_DELETE_WINDOW", callback)
+    root.mainloop()
 
 def main():
     data_dir_path = os.path.abspath(__file__ + '/../../' + '/data')  # directory to scan for any pdf and docx files
     training_data_dir_path = data_dir_path + '/training_data'
     
     collected = read_docx_and_pdf(training_data_dir_path, verbose =True, callback=lambda index, file_path, file_content: {
-        resume_gui(training_data_dir_path, index, file_path, file_content)
+        gui_annotate(training_data_dir_path, index, file_path, file_content)
     })
     
     print('count: ', len(collected))
