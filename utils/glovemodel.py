@@ -31,17 +31,17 @@ class GloveVector():
 #   
     @staticmethod
     def prepare_embedding(embedding_size, download ):
-        if not os.path.exists(os.path.join(os.getcwd() + '../','data') + '/glove.6B/glove.6B.' + str(embedding_size) + 'd.txt' ):
-            print('Glove.6B.zip is being downloaded>>>>')
-            data_dir_path = os.path.join(os.getcwd() + '../','data')
-            glove_zip = os.path.join(data_dir_path , 'glove.6B.zip')
-            urllib.request.urlretrieve(url='http://nlp.stanford.edu/data/glove.6B.zip', filename= 'data/glove.6B.zip')
-            zipped = zipfile.ZipFile(glove_zip,mode = 'r')
-            zipped.extractall()
-            zipped.close()
-      #  data_dir_path = '/home/himanshu/ResumeFilter/data'   
-        data_dir_path = os.path.join(os.getcwd() + '../','data')
-        glove_file_path =  data_dir_path + '/glove.6B/glove.6B.' + str(embedding_size) + 'd.txt'
+        # if not os.path.exists(os.path.join(os.getcwd() + '../','data') + '/glove.6B/glove.6B.' + str(embedding_size) + 'd.txt' ):
+        #     print('Glove.6B.zip is being downloaded>>>>')
+        #     data_dir_path = os.path.join(os.getcwd() + '../','data')
+        #     glove_zip = os.path.join(data_dir_path , 'glove.6B.zip')
+        #     urllib.request.urlretrieve(url='http://nlp.stanford.edu/data/glove.6B.zip', filename= 'data/glove.6B.zip')
+        #     zipped = zipfile.ZipFile(glove_zip,mode = 'r')
+        #     zipped.extractall()
+        #     zipped.close()
+        data_dir_path = '/Users/ananddharne/ResumeFilter/data/'   
+        # data_dir_path = os.path.join(os.getcwd() + '../','data')
+        glove_file_path =  data_dir_path + 'glove.6B.' + str(embedding_size) + 'd.txt'
         embedding_dict = {}
         with open(glove_file_path,'r') as file:
             for line in file:

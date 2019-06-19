@@ -100,10 +100,11 @@ class ResumeParser():
         self.raw_text = text
         for line in text:
             tokens = text_to_word_sequence(line)
+            print(line)
             line_label = self.line_label_classifier.predict_class(line)
             line_type =  self.line_type_classifier.predict_class(line)
-#            print(line_label)
-#            print(line_type)
+            # print(line_label)
+            print(line_type)
             email = get_email(line)
             gender = get_gender(line)
             education = self.get_education(line_label,line)

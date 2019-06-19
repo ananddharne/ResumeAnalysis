@@ -15,6 +15,7 @@ Created on Sun Aug  5 10:01:53 2018
 """
 
 import nltk
+nltk.download('punkt')
 import os
 import re
 import inflect
@@ -32,6 +33,7 @@ class Preprocess():
 #        self.text = text
         
     def process(self,text):
+        print(text)
         self.tokens = self.tokenize(text)
         self.clean_tokens = self.remove_non_ascii(self.tokens)
 #        self.new_tokens = self.remove_punctuation_and_more(self.clean_tokens)

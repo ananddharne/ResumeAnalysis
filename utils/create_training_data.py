@@ -23,13 +23,11 @@ line_types_reverse = {v:k for k,v in line_types.items()}
 class LabelResume(Frame):
     def __init__(self, master , lines_with_dummy_labels):
         Frame.__init__(self, master = master)
-        
-        self.CustomFont = tkFont.Font(family = 'Helvetica', size = 13)
+        self.CustomFont = tkFont.Font(family = 'Helvetica', size = 5)
         self.master.title('Label Resume Lines')
         self.master.rowconfigure(0,weight = 1)
         self.master.columnconfigure(0, weight = 1)
         self.grid(sticky = W + E + N + S)
-
         self.lineIndex_list = []
         self.lineContent_list = []
         self.type_button_list = []
@@ -100,6 +98,7 @@ def resume_gui(training_data_dir_path, index, file_path, file_content):
 def main():
     data_dir_path = os.path.abspath(__file__ + '/../../' + '/data')  # directory to scan for any pdf and docx files
     training_data_dir_path = data_dir_path + '/training_data'
+    
     collected = read_docx_and_pdf(training_data_dir_path, verbose =True, callback=lambda index, file_path, file_content: {
         resume_gui(training_data_dir_path, index, file_path, file_content)
     })

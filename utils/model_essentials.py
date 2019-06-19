@@ -9,6 +9,7 @@ Created on Sun Aug 26 12:38:46 2018
 import os
 import pandas as pd
 import nltk
+nltk.download('punkt')
 import collections
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.text import text_to_word_sequence
